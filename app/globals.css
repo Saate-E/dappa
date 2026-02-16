@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f8f4ec;
+  --surface: #fffefb;
+  --text: #1f1d1a;
+  --muted: #6e665b;
+  --accent: #b8632f;
+  --accent-dark: #7e3914;
+  --line: #e8dccb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 0% 0%, #f3e4d0 0%, transparent 40%),
+    radial-gradient(circle at 100% 0%, #f7dfc1 0%, transparent 36%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.studio-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-wrap {
+  width: min(1120px, 92vw);
+  margin-inline: auto;
+}
+
+.card-surface {
+  background: color-mix(in oklab, var(--surface), white 10%);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+}
+
+.hero-fade {
+  animation: heroFade 0.9s ease;
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

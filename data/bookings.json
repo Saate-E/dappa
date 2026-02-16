@@ -1,0 +1,16 @@
+[
+  {
+    "id": "9213a915-0a5b-4f4a-8fe1-c6ceae52a256",
+    "clientName": "Ejiraobar Saate Echindo",
+    "email": "saateechindo@gmail.com",
+    "phone": "08021498512",
+    "serviceId": "wedding-signature",
+    "serviceName": "Signature Wedding Story",
+    "eventDate": "2026-11-03",
+    "notes": "dfghjkjhgfd",
+    "totalAmount": 1800,
+    "paidAmount": 1000,
+    "status": "pending-balance",
+    "createdAt": "2026-02-13T14:27:25.734Z"
+  }
+]

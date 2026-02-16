@@ -1,0 +1,79 @@
+[
+  {
+    "id": "g1",
+    "name": "Golden Vows",
+    "category": "Wedding",
+    "description": "Sunset wedding portrait with warm cinematic tones.",
+    "imageUrl": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g3",
+    "name": "City Brand Shoot",
+    "category": "Commercial",
+    "description": "Brand campaign frame made for social rollouts.",
+    "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g4",
+    "name": "Runway Glow",
+    "category": "Fashion",
+    "description": "Fashion editorial with dramatic side lighting.",
+    "imageUrl": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g5",
+    "name": "Family Morning",
+    "category": "Lifestyle",
+    "description": "Natural morning story session at home.",
+    "imageUrl": "https://images.unsplash.com/photo-1523464862212-d6631d073194?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g6",
+    "name": "Event Pulse",
+    "category": "Event",
+    "description": "Live conference coverage with crowd dynamics.",
+    "imageUrl": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g7",
+    "name": "Couple Silhouette",
+    "category": "Wedding",
+    "description": "Backlit portrait designed for album openers.",
+    "imageUrl": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g8",
+    "name": "Crafted Product Shot",
+    "category": "Commercial",
+    "description": "Premium table-top image for e-commerce.",
+    "imageUrl": "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g9",
+    "name": "Street Portrait",
+    "category": "Portrait",
+    "description": "Urban portrait with film-inspired grading.",
+    "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g10",
+    "name": "Reception Frames",
+    "category": "Event",
+    "description": "Energetic dance-floor sequence from wedding reception.",
+    "imageUrl": "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g11",
+    "name": "Beach Engagement",
+    "category": "Wedding",
+    "description": "Bright coastal engagement session with relaxed posing.",
+    "imageUrl": "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    "id": "g12",
+    "name": "Creative Motion",
+    "category": "Lifestyle",
+    "description": "Dynamic movement shot for campaign storytelling.",
+    "imageUrl": "https://images.unsplash.com/photo-1464863979621-258859e62245?auto=format&fit=crop&w=1200&q=80"
+  }
+]
