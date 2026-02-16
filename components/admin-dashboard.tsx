@@ -1,7 +1,8 @@
 "use client";
 
 import { BookingRecord, GalleryItem } from "@/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type GalleryForm = {
   id?: string;
@@ -18,17 +19,17 @@ const blankGallery: GalleryForm = {
   imageUrl: "",
 };
 
-export function AdminDashboard() {
-  const [adminKey, setAdminKey] = useState("");
+export function AdminDashboard({ adminKey }: { adminKey: string }) {
+  const router = useRouter();
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [galleryForm, setGalleryForm] = useState<GalleryForm>(blankGallery);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     if (!adminKey) {
-      setStatus("Enter admin key first.");
+      setStatus("Admin session expired. Please log in again.");
       return;
     }
     setLoading(true);
@@ -50,23 +51,46 @@ export function AdminDashboard() {
     setBookings(bookingPayload);
     setGallery(galleryPayload);
     setLoading(false);
+  }, [adminKey]);
+
+  async function requestPasskey(actionLabel: string): Promise<string | null> {
+    const enteredPasskey = window.prompt(`Enter passkey to ${actionLabel}:`);
+    if (!enteredPasskey) {
+      setStatus("Action canceled.");
+      return null;
+    }
+
+    const verifyResponse = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ passkey: enteredPasskey }),
+    });
+
+    if (!verifyResponse.ok) {
+      setStatus("Invalid passkey.");
+      return null;
+    }
+
+    return enteredPasskey;
+  }
+
+  function logout() {
+    window.sessionStorage.removeItem("admin-passkey");
+    router.replace("/admin/login");
   }
 
   useEffect(() => {
-    void fetch("/api/gallery")
-      .then((res) => res.json())
-      .then((data: GalleryItem[]) => setGallery(data))
-      .catch(() => null);
-  }, []);
+    void loadData();
+  }, [loadData]);
 
   async function submitGallery(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!adminKey) {
-      setStatus("Admin key required.");
-      return;
-    }
-
     const isUpdate = Boolean(galleryForm.id);
+    const passkey = await requestPasskey(isUpdate ? "save this gallery update" : "add this picture");
+    if (!passkey) return;
+
     const url = isUpdate ? `/api/gallery/${galleryForm.id}` : "/api/gallery";
     const method = isUpdate ? "PATCH" : "POST";
 
@@ -74,7 +98,7 @@ export function AdminDashboard() {
       method,
       headers: {
         "Content-Type": "application/json",
-        "x-admin-key": adminKey,
+        "x-admin-key": passkey,
       },
       body: JSON.stringify({
         name: galleryForm.name,
@@ -96,18 +120,41 @@ export function AdminDashboard() {
   }
 
   async function deleteGallery(id: string) {
-    if (!adminKey) {
-      setStatus("Admin key required.");
-      return;
-    }
+    const passkey = await requestPasskey("delete this picture");
+    if (!passkey) return;
+
     const response = await fetch(`/api/gallery/${id}`, {
       method: "DELETE",
-      headers: { "x-admin-key": adminKey },
+      headers: { "x-admin-key": passkey },
     });
     if (!response.ok) {
       setStatus("Delete failed.");
       return;
     }
+    setStatus("Picture deleted.");
+    await loadData();
+  }
+
+  async function confirmBooking(id: string) {
+    const passkey = await requestPasskey("confirm this order");
+    if (!passkey) return;
+
+    const response = await fetch(`/api/bookings/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-key": passkey,
+      },
+      body: JSON.stringify({ status: "confirmed" }),
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json()) as { message?: string };
+      setStatus(payload.message ?? "Confirm failed.");
+      return;
+    }
+
+    setStatus("Order confirmed.");
     await loadData();
   }
 
@@ -120,19 +167,19 @@ export function AdminDashboard() {
         <p className="mt-2 text-sm text-[#9fb6cb]">
           Manage bookings and gallery records from one place.
         </p>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <input
-            type="password"
-            value={adminKey}
-            onChange={(event) => setAdminKey(event.target.value)}
-            className="w-full rounded-md border border-[#355169] bg-[#0e1f2d] px-4 py-3 text-sm text-white outline-none ring-[#7cc0ff] focus:ring-2"
-            placeholder="Enter admin key"
-          />
+        <div className="mt-4 flex flex-wrap gap-3">
           <button
             onClick={loadData}
             className="rounded-md bg-[#4ca4f5] px-4 py-3 text-sm font-semibold text-[#05213a] transition hover:bg-[#74b9fb]"
           >
-            Load Data
+            Refresh Data
+          </button>
+          <button
+            type="button"
+            onClick={logout}
+            className="rounded-md border border-[#355169] px-4 py-3 text-sm font-semibold text-[#bdd2e5]"
+          >
+            Log Out
           </button>
         </div>
         {status ? (
@@ -151,6 +198,7 @@ export function AdminDashboard() {
                 <th className="py-2 pr-4">Date</th>
                 <th className="py-2 pr-4">Paid</th>
                 <th className="py-2 pr-4">Status</th>
+                <th className="py-2 pr-4">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -163,6 +211,19 @@ export function AdminDashboard() {
                     ${booking.paidAmount} / ${booking.totalAmount}
                   </td>
                   <td className="py-2 pr-4">{booking.status}</td>
+                  <td className="py-2 pr-4">
+                    {booking.status !== "confirmed" ? (
+                      <button
+                        type="button"
+                        onClick={() => confirmBooking(booking.id)}
+                        className="rounded-md border border-[#355169] px-3 py-1 text-xs text-[#d6e6f5]"
+                      >
+                        Confirm Order
+                      </button>
+                    ) : (
+                      <span className="text-xs text-[#88d39b]">Confirmed</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
