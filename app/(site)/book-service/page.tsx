@@ -1,5 +1,6 @@
 import { BookServiceShell } from "@/components/book-service-shell";
 import { services } from "@/lib/services";
+import { Suspense } from "react";
 
 export default function BookServicePage() {
   return (
@@ -14,7 +15,9 @@ export default function BookServicePage() {
           </p>
         </div>
       </section>
-      <BookServiceShell serviceList={services} />
+      <Suspense fallback={<section className="section-wrap mt-10 text-sm text-[var(--muted)]">Loading booking form...</section>}>
+        <BookServiceShell serviceList={services} />
+      </Suspense>
     </>
   );
 }
