@@ -17,7 +17,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(255,251,244,0.92)] backdrop-blur-md">
       <div className="section-wrap flex items-center justify-between py-4">
         <Link href="/" className="text-xl font-bold tracking-tight">
-          Dappa-Solomon<span className="text-[var(--accent)]">Studio</span>
+          DappaSolomon<span className="text-[var(--accent)]">Studio</span>
         </Link>
 
         <button

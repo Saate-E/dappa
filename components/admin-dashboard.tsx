@@ -9,39 +9,39 @@ type GalleryForm = {
   name: string;
   category: string;
   description: string;
-  imageUrl: string;
 };
 
 const blankGallery: GalleryForm = {
   name: "",
   category: "",
   description: "",
-  imageUrl: "",
 };
 
-export function AdminDashboard({ adminKey }: { adminKey: string }) {
+export function AdminDashboard() {
   const router = useRouter();
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [galleryForm, setGalleryForm] = useState<GalleryForm>(blankGallery);
+  const [galleryImage, setGalleryImage] = useState<File | null>(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   const loadData = useCallback(async () => {
-    if (!adminKey) {
-      setStatus("Admin session expired. Please log in again.");
-      return;
-    }
     setLoading(true);
     setStatus("");
 
     const [bookingRes, galleryRes] = await Promise.all([
-      fetch("/api/bookings", { headers: { "x-admin-key": adminKey } }),
+      fetch("/api/bookings", { credentials: "include" }),
       fetch("/api/gallery"),
     ]);
 
     if (!bookingRes.ok) {
-      setStatus("Unauthorized admin key.");
+      if (bookingRes.status === 401) {
+        setStatus("Admin session expired. Please log in again.");
+        router.replace("/admin");
+        return;
+      }
+      setStatus("Unable to load admin data.");
       setLoading(false);
       return;
     }
@@ -51,34 +51,14 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
     setBookings(bookingPayload);
     setGallery(galleryPayload);
     setLoading(false);
-  }, [adminKey]);
+  }, [router]);
 
-  async function requestPasskey(actionLabel: string): Promise<string | null> {
-    const enteredPasskey = window.prompt(`Enter passkey to ${actionLabel}:`);
-    if (!enteredPasskey) {
-      setStatus("Action canceled.");
-      return null;
-    }
-
-    const verifyResponse = await fetch("/api/admin/login", {
+  async function logout() {
+    await fetch("/api/admin/logout", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ passkey: enteredPasskey }),
+      credentials: "include",
     });
-
-    if (!verifyResponse.ok) {
-      setStatus("Invalid passkey.");
-      return null;
-    }
-
-    return enteredPasskey;
-  }
-
-  function logout() {
-    window.sessionStorage.removeItem("admin-passkey");
-    router.replace("/admin/login");
+    router.replace("/admin");
   }
 
   useEffect(() => {
@@ -88,24 +68,25 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
   async function submitGallery(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const isUpdate = Boolean(galleryForm.id);
-    const passkey = await requestPasskey(isUpdate ? "save this gallery update" : "add this picture");
-    if (!passkey) return;
+    if (!isUpdate && !galleryImage) {
+      setStatus("Please choose an image file.");
+      return;
+    }
 
     const url = isUpdate ? `/api/gallery/${galleryForm.id}` : "/api/gallery";
     const method = isUpdate ? "PATCH" : "POST";
+    const formData = new FormData();
+    formData.append("name", galleryForm.name);
+    formData.append("category", galleryForm.category);
+    formData.append("description", galleryForm.description);
+    if (galleryImage) {
+      formData.append("image", galleryImage);
+    }
 
     const response = await fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        "x-admin-key": passkey,
-      },
-      body: JSON.stringify({
-        name: galleryForm.name,
-        category: galleryForm.category,
-        description: galleryForm.description,
-        imageUrl: galleryForm.imageUrl,
-      }),
+      credentials: "include",
+      body: formData,
     });
 
     if (!response.ok) {
@@ -115,17 +96,15 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
     }
 
     setGalleryForm(blankGallery);
+    setGalleryImage(null);
     setStatus(isUpdate ? "Gallery item updated." : "Gallery item added.");
     await loadData();
   }
 
   async function deleteGallery(id: string) {
-    const passkey = await requestPasskey("delete this picture");
-    if (!passkey) return;
-
     const response = await fetch(`/api/gallery/${id}`, {
       method: "DELETE",
-      headers: { "x-admin-key": passkey },
+      credentials: "include",
     });
     if (!response.ok) {
       setStatus("Delete failed.");
@@ -136,15 +115,12 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
   }
 
   async function confirmBooking(id: string) {
-    const passkey = await requestPasskey("confirm this order");
-    if (!passkey) return;
-
     const response = await fetch(`/api/bookings/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-key": passkey,
       },
+      credentials: "include",
       body: JSON.stringify({ status: "confirmed" }),
     });
 
@@ -261,14 +237,17 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
             placeholder="Category"
           />
           <input
-            required
-            value={galleryForm.imageUrl}
-            onChange={(event) =>
-              setGalleryForm({ ...galleryForm, imageUrl: event.target.value })
-            }
+            type="file"
+            accept="image/*"
+            required={!galleryForm.id}
+            onChange={(event) => setGalleryImage(event.target.files?.[0] ?? null)}
             className="md:col-span-2 rounded-md border border-[#355169] bg-[#0e1f2d] px-4 py-3 text-sm text-white outline-none ring-[#7cc0ff] focus:ring-2"
-            placeholder="Image URL"
           />
+          <p className="md:col-span-2 text-xs text-[#9fb6cb]">
+            {galleryForm.id
+              ? "Choose a file only if you want to replace the current image."
+              : "Choose the image from your device."}
+          </p>
           <textarea
             required
             value={galleryForm.description}
@@ -291,7 +270,10 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
             {galleryForm.id ? (
               <button
                 type="button"
-                onClick={() => setGalleryForm(blankGallery)}
+                onClick={() => {
+                  setGalleryForm(blankGallery);
+                  setGalleryImage(null);
+                }}
                 className="rounded-md border border-[#355169] px-4 py-2 text-sm text-[#bdd2e5]"
               >
                 Cancel Edit
@@ -317,12 +299,20 @@ export function AdminDashboard({ adminKey }: { adminKey: string }) {
               <h3 className="mt-1 font-semibold text-white">{item.name}</h3>
               <p className="mt-1 text-sm text-[#b4cadf]">{item.description}</p>
               <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setGalleryForm(item)}
-                  className="rounded-md border border-[#355169] px-3 py-1 text-xs text-[#d6e6f5]"
-                >
-                  Edit
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGalleryForm({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category,
+                        description: item.description,
+                      });
+                      setGalleryImage(null);
+                    }}
+                    className="rounded-md border border-[#355169] px-3 py-1 text-xs text-[#d6e6f5]"
+                  >
+                    Edit
                 </button>
                 <button
                   type="button"

@@ -3,7 +3,7 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-[var(--line)] bg-[var(--surface)]">
       <div className="section-wrap grid gap-6 py-10 md:grid-cols-3">
         <div>
-          <p className="text-lg font-bold">Dappa-SolomonStudio</p>
+          <p className="text-lg font-bold">DappaSolomonStudio</p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Crafted visual storytelling for weddings, portraits, brands, and
             events.
@@ -27,7 +27,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-[var(--line)] py-4 text-center text-xs text-[var(--muted)]">
-        © {new Date().getFullYear()} Dappa-SolomonStudio. All rights reserved.
+        © {new Date().getFullYear()} DappaSolomonStudio. All rights reserved.
       </div>
     </footer>
   );

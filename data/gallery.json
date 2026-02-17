@@ -1,5 +1,12 @@
 [
   {
+    "id": "d9d94fa8-83d5-4640-82cb-52563ece1c67",
+    "name": "Logo",
+    "category": "Creative",
+    "description": "The official logo for the studio",
+    "imageUrl": "/uploads/gallery/logo-2821c6a5-5a08-4a5a-ae9f-1a2b76abdfaf.png"
+  },
+  {
     "id": "g1",
     "name": "Golden Vows",
     "category": "Wedding",

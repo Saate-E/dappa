@@ -1,5 +1,5 @@
-import { AdminAuthGate } from "@/components/admin-auth-gate";
+import { AdminLoginForm } from "@/components/admin-login-form";
 
 export default function AdminPage() {
-  return <AdminAuthGate />;
+  return <AdminLoginForm />;
 }

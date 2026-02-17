@@ -10,7 +10,7 @@
     "notes": "dfghjkjhgfd",
     "totalAmount": 1800,
     "paidAmount": 1000,
-    "status": "pending-balance",
+    "status": "confirmed",
     "createdAt": "2026-02-13T14:27:25.734Z"
   }
 ]

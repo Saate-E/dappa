@@ -4,22 +4,27 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminDashboard } from "@/components/admin-dashboard";
 
-const ADMIN_SESSION_KEY = "admin-passkey";
-
 export function AdminAuthGate() {
   const router = useRouter();
-  const [adminKey, setAdminKey] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const storedKey = window.sessionStorage.getItem(ADMIN_SESSION_KEY);
-    if (!storedKey) {
-      router.replace("/admin/login");
-      return;
+    async function checkSession() {
+      const response = await fetch("/api/admin/session", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        router.replace("/admin");
+        return;
+      }
+      setReady(true);
     }
-    setAdminKey(storedKey);
+
+    void checkSession();
   }, [router]);
 
-  if (!adminKey) {
+  if (!ready) {
     return (
       <section className="section-wrap mt-10">
         <p className="text-sm text-[var(--muted)]">Checking admin session...</p>
@@ -27,5 +32,5 @@ export function AdminAuthGate() {
     );
   }
 
-  return <AdminDashboard adminKey={adminKey} />;
+  return <AdminDashboard />;
 }
