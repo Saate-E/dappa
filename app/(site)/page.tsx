@@ -2,6 +2,7 @@ import { ContactSection } from "@/components/contact-section";
 import { HeroSlider } from "@/components/hero-slider";
 import { ServicesSection } from "@/components/services-section";
 import { VideoSection } from "@/components/video-section";
+import { readGallery } from "@/lib/data-store";
 
 const homeSlides = [
   {
@@ -24,12 +25,38 @@ const homeSlides = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const gallery = await readGallery();
+  const galleryPreview = gallery.slice(0, 4);
+
   return (
     <>
       <HeroSlider slides={homeSlides} cta={{ href: "/book-service", label: "Reserve Your Date" }} />
       <ServicesSection />
       <VideoSection title="A Short Look At Our Work Process" />
+      {galleryPreview.length > 0 ? (
+        <section className="section-wrap mt-10">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">Gallery</p>
+              <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Featured Frames</h2>
+            </div>
+            <a
+              href="/gallery"
+              className="text-sm font-semibold text-[var(--accent)] transition hover:text-[var(--accent-dark)]"
+            >
+              See more
+            </a>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {galleryPreview.map((item) => (
+              <article key={item.id} className="card-surface overflow-hidden">
+                <img src={item.imageUrl} alt={item.name} className="h-56 w-full object-cover" />
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <ContactSection />
     </>
   );
