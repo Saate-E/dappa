@@ -1,10 +1,11 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+﻿import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { BookingRecord, GalleryItem } from "@/types";
+import { BookingRecord, GalleryItem, StoreItem } from "@/types";
 
 const dataDir = path.join(process.cwd(), "data");
 const bookingsPath = path.join(dataDir, "bookings.json");
 const galleryPath = path.join(dataDir, "gallery.json");
+const storePath = path.join(dataDir, "store.json");
 
 async function ensureDataDir() {
   await mkdir(dataDir, { recursive: true });
@@ -39,4 +40,12 @@ export async function readGallery(): Promise<GalleryItem[]> {
 
 export async function saveGallery(gallery: GalleryItem[]): Promise<void> {
   await writeJsonFile(galleryPath, gallery);
+}
+
+export async function readStore(): Promise<StoreItem[]> {
+  return readJsonFile<StoreItem[]>(storePath, []);
+}
+
+export async function saveStore(store: StoreItem[]): Promise<void> {
+  await writeJsonFile(storePath, store);
 }

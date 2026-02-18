@@ -1,17 +1,22 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/about-us", label: "About Us" },
   { href: "/gallery", label: "Gallery" },
+  { href: "/store", label: "Store" },
   { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(255,251,244,0.92)] backdrop-blur-md">
@@ -33,19 +38,30 @@ export function SiteHeader() {
             open ? "flex" : "hidden"
           } absolute left-0 top-[72px] w-full flex-col gap-1 border-b border-[var(--line)] bg-[var(--surface)] p-4 md:static md:flex md:w-auto md:flex-row md:items-center md:gap-6 md:border-0 md:bg-transparent md:p-0`}
         >
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-[var(--muted)] transition hover:bg-[var(--line)] hover:text-[var(--text)]"
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-md px-3 py-2 text-sm font-medium transition hover:bg-[var(--line)] hover:text-[var(--text)] ${
+                  active ? "bg-[var(--line)] text-[var(--text)]" : "text-[var(--muted)]"
+                }`}
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <Link
             href="/book-service"
-            className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-dark)]"
+            aria-current={isActive("/book-service") ? "page" : undefined}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              isActive("/book-service")
+                ? "bg-[var(--accent-dark)] text-white"
+                : "bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)]"
+            }`}
             onClick={() => setOpen(false)}
           >
             Book Service

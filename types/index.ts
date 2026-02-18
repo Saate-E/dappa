@@ -1,4 +1,4 @@
-export type ServiceTier = "Wedding" | "Portrait" | "Commercial" | "Event" | "Lifestyle";
+﻿export type ServiceTier = "Wedding" | "Portrait" | "Commercial" | "Event" | "Lifestyle";
 
 export interface ServiceOption {
   id: string;
@@ -18,8 +18,11 @@ export interface BookingRecord {
   eventDate: string;
   notes: string;
   totalAmount: number;
+  depositAmount?: number;
   paidAmount: number;
-  status: "pending-balance" | "confirmed";
+  status: "payment-pending" | "pending-balance" | "confirmed";
+  paymentProvider?: "paystack";
+  paymentReference?: string;
   createdAt: string;
 }
 
@@ -29,4 +32,13 @@ export interface GalleryItem {
   category: string;
   description: string;
   imageUrl: string;
+}
+
+export interface StoreItem {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  price: number;
 }

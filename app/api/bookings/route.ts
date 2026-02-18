@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { readBookings, saveBookings } from "@/lib/data-store";
 import { serviceMap } from "@/lib/services";
@@ -32,10 +32,13 @@ export async function POST(request: NextRequest) {
     }
 
     const paidAmount = Number(payload.paidAmount ?? 0);
+    if (!Number.isFinite(paidAmount)) {
+      return NextResponse.json({ message: "Invalid payment amount." }, { status: 400 });
+    }
     const minimumAmount = service.price / 2;
     if (paidAmount < minimumAmount) {
       return NextResponse.json(
-        { message: `Half payment required. Minimum accepted is $${minimumAmount}.` },
+        { message: `Half payment required. Minimum accepted is NGN ${minimumAmount}.` },
         { status: 400 }
       );
     }
@@ -55,6 +58,7 @@ export async function POST(request: NextRequest) {
       eventDate: payload.eventDate,
       notes: payload.notes ?? "",
       totalAmount: service.price,
+      depositAmount: paidAmount,
       paidAmount,
       status: paidAmount >= service.price ? "confirmed" : "pending-balance",
       createdAt: new Date().toISOString(),
